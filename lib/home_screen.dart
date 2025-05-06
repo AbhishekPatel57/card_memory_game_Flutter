@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'utils/storage_helper.dart';
 import 'game_screen.dart';
+import 'splash_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,8 +12,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int unlockedLevel = 1;
+  int unlockedLevel = 1; // change this to 1 
 
+  // Uncomment these
+  
   @override
   void initState() {
     super.initState();
@@ -45,7 +49,29 @@ class _HomeScreenState extends State<HomeScreen> {
     final crossAxisCount = (screenWidth / (cardSize + spacing)).floor();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Memory Card Game')),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.person),
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const ProfileScreen()),
+            );
+          },
+        ),
+        title: const Text('Memory Card Game'),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 74, 173, 255),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const SplashScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(spacing),
         child: GridView.builder(
@@ -58,6 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           itemBuilder: (context, index) {
             final level = index + 1;
+            // final isUnlocked = level <= 40; // level <= unlockedLevel;
+            // Uncomment the line below to use the unlocked level from StorageHelper
             final isUnlocked = level <= unlockedLevel;
             return GestureDetector(
               onTap: isUnlocked

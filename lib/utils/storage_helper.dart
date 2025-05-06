@@ -15,4 +15,33 @@ class StorageHelper {
       await prefs.setInt(_keyUnlockedLevel, level);
     }
   }
+
+  static Future<String> getName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userName') ?? 'User';
+  }
+  static Future<void> saveName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userName', name);
+  }
+
+  static Future<String> getEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('email') ?? 'example@gmail.com';
+  }
+  
+  static Future<void> saveEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('email', email);
+  }
+
+  static Future<String> getNumber() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('number') ?? '+91 1234567890';
+  }
+
+  static Future<void> saveNumber(String number) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('number', number);
+  }
 }

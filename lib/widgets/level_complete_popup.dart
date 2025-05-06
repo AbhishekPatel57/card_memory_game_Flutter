@@ -9,7 +9,7 @@ class LevelCompletePopup extends StatelessWidget {
     super.key,
     this.onNext,
     required this.onRestart,
-    required this.onHome,
+    required this.onHome, required String Text,
   });
 
   @override

@@ -8,7 +8,7 @@ import 'widgets/card_widget.dart';
 import 'widgets/level_complete_popup.dart';
 import 'level_manager.dart';
 import 'utils/storage_helper.dart';
-
+import 'home_screen.dart';
 
 class GameScreen extends StatefulWidget {
   final int level;
@@ -37,7 +37,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   CardModel? firstFlipped;
 
-@override
+  @override
   void initState() {
     super.initState();
     cards = LevelManager.generateLevel(widget.level);
@@ -66,7 +66,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     });
   }
 
- void resetGame() {
+  void resetGame() {
     setState(() {
       moves = 0;
       correctMatches = 0;
@@ -94,30 +94,77 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             StorageHelper.saveUnlockedLevel(widget.level + 1);
             showDialog(
               context: context,
-              barrierDismissible: false,
-              builder: (_) => LevelCompletePopup(
-                onNext: widget.level < 50
-                    ? () {
-                        Navigator.pop(context);
-                        StorageHelper.saveUnlockedLevel(widget.level + 1);
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => GameScreen(level: widget.level + 1, onLevelComplete: _onLevelComplete)
+              builder: (_) => AlertDialog(
+                title: const Text('Level Completed!'),
+                content: Text('Time: $secondsPassed s\nMoves: $moves'),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      StorageHelper.saveUnlockedLevel(widget.level + 1);
+                      Navigator.pop(context); // close dialog
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                      ); // back to home
+                    },
+                    child: const Text('Home'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      StorageHelper.saveUnlockedLevel(widget.level + 1);
+                      Navigator.pop(context);
+                      resetGame();
+                    },
+                    child: const Text('Restart'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      StorageHelper.saveUnlockedLevel(widget.level + 1);
+                      Navigator.pop(context);
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => GameScreen(
+                            level: widget.level + 1,
+                            onLevelComplete: widget.onLevelComplete,
                           ),
-                        ).then((_) => _loadProgress());
-                      }
-                    : null,
-                onRestart: () {
-                  Navigator.pop(context);
-                  resetGame();
-                },
-                onHome: () {
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                },
+                        ),
+                      );
+                    },
+                    child: const Text('Next Level'),
+                  ),
+                ],
               ),
-            ).then((_) => _loadProgress());
+            );
+
+            // showDialog(
+            //   context: context,
+            //   barrierDismissible: false,
+            //   builder: (_) => LevelCompletePopup(
+            //     onNext: widget.level < 50
+            //         ? () {
+            //             Navigator.pop(context);
+            //             StorageHelper.saveUnlockedLevel(widget.level + 1);
+            //             Navigator.pushReplacement(
+            //               context,
+            //               MaterialPageRoute(
+            //                 builder: (_) => GameScreen(level: widget.level + 1, onLevelComplete: _onLevelComplete)
+            //               ),
+            //             ).then((_) => _loadProgress());
+            //           }
+            //         : null,
+            //     onRestart: () {
+            //       Navigator.pop(context);
+            //       resetGame();
+            //     },
+            //     onHome: () {
+            //       StorageHelper.saveUnlockedLevel(widget.level + 1);
+            //       Navigator.of(context).pushReplacement(
+            //         MaterialPageRoute(builder: (_) => const HomeScreen()),
+            //       );
+            //     },
+            //     Text: '',
+            //   ),
+            // ).then((_) => _loadProgress());
           }
         } else {
           wrongMatches++;
@@ -146,20 +193,34 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     double screenWidth = MediaQuery.of(context).size.width;
     const cardSpacing = 10.0;
     const idealCardSize = 80.0;
-    final crossAxisCount = (screenWidth / (idealCardSize + cardSpacing)).floor();
+    final crossAxisCount =
+        (screenWidth / (idealCardSize + cardSpacing)).floor();
     // int crossAxisCount = MediaQuery.of(context).size.width > 600 ? 6 : 4;
-    
-      return Scaffold(
+
+    return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          },
+        ),
         title: Text('Level ${widget.level}'),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: resetGame,
           ),
           IconButton(
-            icon: const Icon(Icons.exit_to_app),
-            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.home),
+            onPressed: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -188,9 +249,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                   mainAxisSpacing: cardSpacing,
                 ),
                 itemBuilder: (context, index) => CardWidget(
-                card: cards[index],
-                onTap: () => onCardTap(cards[index]),
-                  ),
+                  card: cards[index],
+                  onTap: () => onCardTap(cards[index]),
+                ),
               ),
             ),
           ),
